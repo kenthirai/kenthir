@@ -184,7 +184,7 @@ function GeneratorPageContent() {
             if (theme) localStorage.setItem('theme', theme);
             
             setPrompt(''); setModel('flux'); setQuality('hd'); setSizePreset('1024x1024'); setUseCustomSize(false);
-            setCustomWidth(1024); setCustomHeight(1024); setSeed(''); setBatchSize(1); setArtStyle('');
+            setCustomWidth(1024); setCustomHeight(1024); setSeed(''); setBatchSize(2); setArtStyle('');
             setGeneratedImages([]); setLoading(false); setApiKey(''); setGenerationHistory([]); setSavedPrompts([]);
             setActiveTab('image'); setGeneratedAudio(null); setGeneratedVideoPrompt(''); setGeneratedImagePrompt('');
 
