@@ -4,9 +4,10 @@ import { Suspense, useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import {
     X, Upload, ImageDown, Trash2, ChevronUp, MessageSquare,
-    Wand2, Sun, Moon // <-- Tambahkan Sun dan Moon di sini
+    Wand2, Sun, Moon, DollarSign
 } from 'lucide-react';
-import { useTheme } from 'next-themes'; // <-- Import useTheme
+import { useTheme } from 'next-themes';
+import { useSession, signIn } from 'next-auth/react'; // <-- Hapus SessionProvider dari import ini
 
 import { Spinner, NeumorphicButton, Toasts, ImageAnalysisModal } from '../sharedComponents.js';
 import ChatbotAssistant from '../ChatbotAssistant.js';
@@ -21,6 +22,7 @@ import { MasterResetModal } from './components/modals/MasterResetModal';
 import { TurboAuthModal } from './components/modals/TurboAuthModal';
 import { ImageViewer } from './components/ImageViewer';
 
+// Komponen utama GeneratorPageContent
 function GeneratorPageContent() {
     const {
         isMounted, prompt, setPrompt, model, setModel, quality, setQuality, sizePreset, setSizePreset,
@@ -30,7 +32,8 @@ function GeneratorPageContent() {
         savedPrompts, setSavedPrompts, toasts, showToast, activeTab, setActiveTab, videoParams, setVideoParams,
         audioVoice, setAudioVoice, generatedAudio, generatedVideoPrompt, setGeneratedVideoPrompt, generatedImagePrompt, setGeneratedImagePrompt,
         aiSuggestions, isFetchingSuggestions, fetchAiSuggestions, handleRandomPrompt, handleEnhancePrompt,
-        handleGenerate, handleBuildImagePrompt, handleBuildVideoPrompt, canvasRef
+        handleGenerate,
+        handleBuildImagePrompt, handleBuildVideoPrompt, canvasRef
     } = useImageGenerator();
 
     const [isAnalysisModalOpen, setIsAnalysisModalOpen] = useState(false);
@@ -49,9 +52,37 @@ function GeneratorPageContent() {
     const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
     const [imageInViewer, setImageInViewer] = useState(null);
 
-    const { theme, setTheme } = useTheme(); // <-- Dapatkan theme dan setTheme di sini
+    const { theme, setTheme } = useTheme();
+    const { data: session, status } = useSession(); // Dapatkan sesi pengguna dan status otentikasi
+
+    const [userCoins, setUserCoins] = useState(0);
+    const [isFetchingCoins, setIsFetchingCoins] = useState(false);
+
 
     const searchParams = useSearchParams();
+
+    const fetchUserCoins = async () => {
+        setIsFetchingCoins(true);
+        try {
+            const res = await fetch('/api/coins');
+            if (!res.ok) {
+                throw new Error('Gagal memuat saldo koin');
+            }
+            const data = await res.json();
+            setUserCoins(data.balance);
+        } catch (error) {
+            console.error("Error fetching coins:", error);
+            showToast('Gagal memuat saldo koin.', 'error');
+        } finally {
+            setIsFetchingCoins(false);
+        }
+    };
+
+    useEffect(() => {
+        if (isMounted) {
+            fetchUserCoins();
+        }
+    }, [isMounted, session]);
 
     useEffect(() => {
         const promptFromUrl = searchParams.get('prompt');
@@ -164,8 +195,35 @@ function GeneratorPageContent() {
     };
 
     const onUsePromptAndSeed = (p, s) => { setPrompt(p); setSeed(String(s)); setActiveTab('image'); showToast('Prompt & Seed dimuat.', 'success'); setIsImageViewerOpen(false); };
-    const onCreateVariation = (image) => { setPrompt(image.prompt); setSeed(''); setActiveTab('image'); setTimeout(() => { handleGenerate(); }, 100); showToast('Membuat variasi baru...', 'info'); setIsImageViewerOpen(false); };
-    const onDeleteImage = (imgToDelete) => { setGeneratedImages(prev => prev.filter(img => img.url !== imgToDelete.url)); setGenerationHistory(prev => prev.filter(img => img.url !== imgToDelete.url)); showToast('Gambar berhasil dihapus!', 'success'); setIsImageViewerOpen(false); };
+    const onCreateVariation = (image) => { setPrompt(image.prompt); setSeed(''); setActiveTab('image'); setTimeout(() => { handleGenerateWithCoins(); }, 100); showToast('Membuat variasi baru...', 'info'); setIsImageViewerOpen(false); };
+
+    const deductCoins = async (amount = 1) => {
+        try {
+            const res = await fetch('/api/coins', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ amount })
+            });
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.error || 'Gagal mengurangi koin');
+            }
+            const data = await res.json();
+            setUserCoins(data.balance);
+            return true;
+        } catch (error) {
+            console.error("Error deducting coins:", error);
+            showToast(`Koin tidak cukup! ${error.message}`, 'error');
+            return false;
+        }
+    };
+
+    const onDeleteImage = (imgToDelete) => {
+        setGeneratedImages(prev => prev.filter(img => img.url !== imgToDelete.url));
+        setGenerationHistory(prev => prev.filter(img => img.url !== imgToDelete.url));
+        showToast('Gambar berhasil dihapus!', 'success');
+        setIsImageViewerOpen(false);
+    };
     const onDownloadImage = (image) => {
         const link = document.createElement('a');
         link.download = `Kenthir-ai-${Date.now()}.png`;
@@ -178,6 +236,18 @@ function GeneratorPageContent() {
     const handleViewImage = (image) => {
         setImageInViewer(image);
         setIsImageViewerOpen(true);
+    };
+
+    const handleGenerateWithCoins = async () => {
+        if (userCoins <= 0) {
+            showToast('Koin Anda tidak cukup! Silakan login untuk mendapatkan lebih banyak koin.', 'error');
+            return;
+        }
+
+        const deductionSuccess = await deductCoins();
+        if (deductionSuccess) {
+            await handleGenerate();
+        }
     };
 
 
@@ -216,7 +286,6 @@ function GeneratorPageContent() {
                             <Wand2 className="text-yellow-500 h-8 w-8 md:h-9 md:w-9 flex-shrink-0" />
                             <span>Kenthir AI Generator</span>
                         </h1>
-                        {/* Tombol ganti tema kembali di sini */}
                         <div className="flex items-center justify-center">
                             <NeumorphicButton
                                 aria-label={theme === 'dark' ? "Ganti ke mode terang" : "Ganti ke mode gelap"}
@@ -227,6 +296,28 @@ function GeneratorPageContent() {
                             </NeumorphicButton>
                         </div>
                     </header>
+                    <div className="flex justify-between items-center bg-[var(--bg-color)] p-4 rounded-xl neumorphic-card mb-6">
+                        <div className="flex items-center gap-2">
+                            <DollarSign size={24} className="text-green-500"/>
+                            <span className="text-lg font-bold">Koin Anda:</span>
+                            {isFetchingCoins ? (
+                                <Spinner />
+                            ) : (
+                                <span className="text-lg font-bold text-indigo-500">{userCoins}</span>
+                            )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                            {status === 'loading' ? (
+                                <Spinner />
+                            ) : status === 'authenticated' ? (
+                                <span className="text-sm opacity-80">Halo, {session.user.name || session.user.email}!</span>
+                            ) : (
+                                <NeumorphicButton onClick={() => signIn()} className="!p-2 text-sm">
+                                    Login
+                                </NeumorphicButton>
+                            )}
+                        </div>
+                    </div>
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                         <div className="lg:col-span-4 space-y-6">
                             <GenerationControls
@@ -235,8 +326,8 @@ function GeneratorPageContent() {
                                 quality={quality} setQuality={setQuality}
                                 sizePreset={sizePreset} setSizePreset={setSizePreset}
                                 useCustomSize={useCustomSize} setUseCustomSize={setUseCustomSize}
-                                customWidth={customWidth} setCustomWidth={setCustomWidth}
-                                customHeight={customHeight} setCustomHeight={setCustomHeight}
+                                customWidth={customWidth} setCustomWidth={customWidth}
+                                customHeight={customHeight} setCustomHeight={customHeight}
                                 seed={seed} setSeed={setSeed}
                                 batchSize={batchSize} setBatchSize={setBatchSize}
                                 artStyle={artStyle} setArtStyle={setArtStyle}
@@ -249,7 +340,8 @@ function GeneratorPageContent() {
                                 generatedImagePrompt={generatedImagePrompt}
                                 aiSuggestions={aiSuggestions} isFetchingSuggestions={isFetchingSuggestions} fetchAiSuggestions={fetchAiSuggestions}
                                 handleRandomPrompt={handleRandomPrompt} handleEnhancePrompt={handleEnhancePrompt}
-                                handleGenerate={handleGenerate} handleBuildImagePrompt={handleBuildImagePrompt} handleBuildVideoPrompt={handleBuildVideoPrompt}
+                                handleGenerate={handleGenerateWithCoins}
+                                handleBuildImagePrompt={handleBuildImagePrompt} handleBuildVideoPrompt={handleBuildVideoPrompt}
                                 setIsApiModalOpen={setIsApiModalOpen} setModelRequiringKey={setModelRequiringKey} setIsTurboAuthModalOpen={setIsTurboAuthModalOpen}
                                 turboCountdown={turboCountdown}
                                 setIsCreatorOpen={setIsCreatorOpen} isCreatorOpen={isCreatorOpen}
@@ -273,7 +365,7 @@ function GeneratorPageContent() {
                                 setPrompt={setPrompt}
                                 setSeed={setSeed}
                                 setActiveTab={setActiveTab}
-                                handleGenerate={handleGenerate}
+                                handleGenerate={handleGenerateWithCoins}
                                 generationHistory={generationHistory}
                                 setGenerationHistory={setGenerationHistory}
                                 onViewImage={handleViewImage}
@@ -326,10 +418,14 @@ function GeneratorPageContent() {
     );
 }
 
+// Komponen GeneratorPage yang membungkus GeneratorPageContent dengan SessionProvider
 export default function GeneratorPage() {
     return (
         <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-gray-100"><Spinner/></div>}>
-            <GeneratorPageContent />
+            {/* SessionProvider harus membungkus komponen yang menggunakan useSession */}
+            <SessionProvider>
+                <GeneratorPageContent />
+            </SessionProvider>
         </Suspense>
     );
 }

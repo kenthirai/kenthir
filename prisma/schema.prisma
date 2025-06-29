@@ -1,0 +1,82 @@
+// prisma/schema.prisma
+
+// --- BLOCK DATASOURCE YANG HILANG ATAU TIDAK LENGKAP INI ---
+// Pastikan ada provider untuk database Anda (misal: postgresql)
+datasource db {
+  provider = "postgresql" // Ganti sesuai database Anda (misal: "postgresql", "mysql", "sqlite")
+  url      = env("DATABASE_URL")
+}
+// --- AKHIR BLOCK DATASOURCE ---
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Model User yang sudah ada atau yang baru (jika belum ada)
+// Pastikan email adalah @unique dan ada id
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  // Tambahan untuk NextAuth.js
+  accounts      Account[]
+  sessions      Session[]
+  coinBalance   CoinBalance? // Hubungkan ke CoinBalance
+
+  @@map("users") // Opsional: sesuaikan nama tabel di database
+}
+
+// Model untuk NextAuth.js (jika Anda menggunakan adapter Prisma)
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String   @id
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verificationtokens")
+}
+
+// Model BARU untuk Koin
+model CoinBalance {
+  id           String    @id @default(cuid())
+  userId       String    @unique // Koin terhubung ke satu user
+  balance      Int       @default(0)
+  lastReset    DateTime? // Kapan koin terakhir direset (untuk tamu)
+  isGuest      Boolean   @default(false) // Menandakan apakah ini koin tamu
+
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("coin_balances") // Opsional: nama tabel di database
+}
