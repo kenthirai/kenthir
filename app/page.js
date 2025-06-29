@@ -47,17 +47,20 @@ export default function LandingPage() {
     ];
 
     return (
-        <div className="min-h-screen bg-[var(--bg-color)] text-[var(--text-color)]">
-            <main className="container mx-auto p-4 sm:p-6 lg:p-8">
+        <div className="min-h-screen flex flex-col bg-[var(--bg-color)] text-[var(--text-color)]">
+            <main className="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center">
                 {/* Hero Section */}
-                <section className="text-center py-20 sm:py-28 animate-fade-in">
+                <section className="w-full flex flex-col items-center text-center py-20 sm:py-28 animate-fade-in">
                     <h1 className="text-4xl md:text-6xl font-bold mb-4">
                         Ubah Imajinasi Menjadi Karya Seni
                     </h1>
                     <p className="text-lg md:text-xl max-w-3xl mx-auto mb-8 opacity-80">
                         Gunakan kekuatan AI untuk menciptakan gambar, prompt video, dan audio yang menakjubkan dari deskripsi teks sederhana.
                     </p>
-                    <form onSubmit={onFormSubmit} className="max-w-2xl mx-auto flex flex-col sm:flex-row gap-4">
+                    <form
+                        onSubmit={onFormSubmit}
+                        className="w-full max-w-2xl mx-auto flex flex-col sm:flex-row gap-4 items-center justify-center"
+                    >
                         <input
                             type="text"
                             value={prompt}
@@ -65,26 +68,30 @@ export default function LandingPage() {
                             placeholder="Contoh: Kucing astronot di planet Mars..."
                             className="w-full p-4 text-lg rounded-xl neumorphic-input flex-grow"
                         />
-                        <NeumorphicButton 
+                        <NeumorphicButton
                             type="button"
                             onClick={handleGenerateRedirect}
-                            className="!p-4 !font-bold !text-lg"
+                            className="!p-4 !font-bold !text-lg flex items-center justify-center"
                         >
                             <Sparkles size={24} />
-                            Generate
+                            <span className="ml-2">Generate</span>
                         </NeumorphicButton>
                     </form>
                 </section>
 
                 {/* Benefits Section */}
-                <section className="py-20">
+                <section className="w-full py-20 flex flex-col items-center">
                     <div className="text-center mb-12">
                         <h2 className="text-3xl md:text-4xl font-bold">Fitur Unggulan</h2>
                         <p className="text-lg opacity-80 mt-2">Semua yang Anda butuhkan untuk berkreasi tanpa batas.</p>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-3 gap-8">
                         {benefits.map((benefit, index) => (
-                            <div key={index} className="p-8 rounded-2xl text-center neumorphic-card animate-fade-in" style={{ animationDelay: `${index * 150}ms`}}>
+                            <div
+                                key={index}
+                                className="p-8 rounded-2xl text-center neumorphic-card animate-fade-in flex flex-col items-center"
+                                style={{ animationDelay: `${index * 150}ms` }}
+                            >
                                 <div className="flex justify-center mb-4">
                                     {benefit.icon}
                                 </div>
@@ -96,27 +103,31 @@ export default function LandingPage() {
                 </section>
 
                 {/* CTA Section */}
-                <section className="text-center py-20">
+                <section className="w-full flex flex-col items-center text-center py-20">
                     <h2 className="text-3xl md:text-4xl font-bold mb-4">Siap untuk Memulai?</h2>
                     <p className="text-lg md:text-xl max-w-2xl mx-auto mb-8 opacity-80">
                         Jangan biarkan ide brilian Anda hanya menjadi angan-angan. Wujudkan sekarang juga dengan satu klik.
                     </p>
-                    <NeumorphicButton onClick={() => router.push('/generator')} className="!p-5 !font-bold !text-xl !px-10">
+                    <NeumorphicButton
+                        onClick={() => router.push('/generator')}
+                        className="!p-5 !font-bold !text-xl !px-10 flex items-center justify-center"
+                    >
                         Buka Generator Sekarang
                     </NeumorphicButton>
                 </section>
             </main>
-            
+
             <footer className="text-center p-4 mt-8 border-t border-gray-500/20 text-sm opacity-70">
-                <p>&copy; {new Date().getFullYear()} Kenthir AI - Developed with ❤️ by{' '}
-                  <a
-                    href="https://ariftirtana.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="font-semibold text-indigo-400 hover:text-indigo-300 transition-colors"
-                  >
-                    Arif Tirtana
-                  </a>
+                <p>
+                    &copy; {new Date().getFullYear()} Kenthir AI - Developed with ❤️ by{' '}
+                    <a
+                        href="https://ariftirtana.com"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-semibold text-indigo-400 hover:text-indigo-300 transition-colors"
+                    >
+                        Arif Tirtana
+                    </a>
                 </p>
             </footer>
             <ChatbotAssistant />
