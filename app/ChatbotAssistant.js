@@ -48,7 +48,7 @@ const ChatbotAssistant = () => {
           const header = document.createElement('div');
           header.className = 'rr-assistant-header';
           header.innerHTML = `
-            <h3><i class="fab fa-linux"></i> RR Assistant</h3>
+            <h3><i class="fab fa-linux"></i> Kenthir Assistant</h3>
             <div class="rr-assistant-header-actions">
               <button class="rr-assistant-new-chat" title="New Chat"><i class="fas fa-plus"></i></button>
               <button class="rr-assistant-clear-chat" title="Clear Chat"><i class="fas fa-eraser"></i></button>
@@ -487,7 +487,7 @@ const ChatbotAssistant = () => {
         startNewConversation() {
           this.currentConversationId = 'conv-' + Date.now();
           this.chatMessages.innerHTML = '';
-          this.addMessage('assistant', "Hello! How can I assist you today?", true);
+            this.addMessage('assistant', "Hai! Ada yang bisa kubantu hari ini?", true);
         }
 
         showNotification(message) {
