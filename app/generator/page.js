@@ -4,8 +4,9 @@ import { Suspense, useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import {
     X, Upload, ImageDown, Trash2, ChevronUp, MessageSquare,
-    Wand2
+    Wand2, Sun, Moon // <-- Tambahkan Sun dan Moon di sini
 } from 'lucide-react';
+import { useTheme } from 'next-themes'; // <-- Import useTheme
 
 import { Spinner, NeumorphicButton, Toasts, ImageAnalysisModal } from '../sharedComponents.js';
 import ChatbotAssistant from '../ChatbotAssistant.js';
@@ -18,7 +19,7 @@ import { ApiKeyModal } from './components/modals/ApiKeyModal';
 import { ClearHistoryModal } from './components/modals/ClearHistoryModal';
 import { MasterResetModal } from './components/modals/MasterResetModal';
 import { TurboAuthModal } from './components/modals/TurboAuthModal';
-import { ImageViewer } from './components/ImageViewer'; // <-- Import ImageViewer
+import { ImageViewer } from './components/ImageViewer';
 
 function GeneratorPageContent() {
     const {
@@ -45,10 +46,10 @@ function GeneratorPageContent() {
     const [isCreatorOpen, setIsCreatorOpen] = useState(false);
     const [promptCreator, setPromptCreator] = useState({ subject: '', details: '' });
 
-    // Hapus selectedImageForEditing, karena ImageViewer punya state sendiri
-    const [isImageViewerOpen, setIsImageViewerOpen] = useState(false); // <-- State baru untuk viewer
-    const [imageInViewer, setImageInViewer] = useState(null); // <-- State baru untuk gambar di viewer
+    const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
+    const [imageInViewer, setImageInViewer] = useState(null);
 
+    const { theme, setTheme } = useTheme(); // <-- Dapatkan theme dan setTheme di sini
 
     const searchParams = useSearchParams();
 
@@ -162,7 +163,6 @@ function GeneratorPageContent() {
         }
     };
 
-    // Fungsi-fungsi aksi yang akan diteruskan ke GeneratedContentDisplay dan ImageViewer
     const onUsePromptAndSeed = (p, s) => { setPrompt(p); setSeed(String(s)); setActiveTab('image'); showToast('Prompt & Seed dimuat.', 'success'); setIsImageViewerOpen(false); };
     const onCreateVariation = (image) => { setPrompt(image.prompt); setSeed(''); setActiveTab('image'); setTimeout(() => { handleGenerate(); }, 100); showToast('Membuat variasi baru...', 'info'); setIsImageViewerOpen(false); };
     const onDeleteImage = (imgToDelete) => { setGeneratedImages(prev => prev.filter(img => img.url !== imgToDelete.url)); setGenerationHistory(prev => prev.filter(img => img.url !== imgToDelete.url)); showToast('Gambar berhasil dihapus!', 'success'); setIsImageViewerOpen(false); };
@@ -172,10 +172,9 @@ function GeneratorPageContent() {
         link.href = image.url;
         link.click();
         showToast('Gambar diunduh!', 'success');
-        setIsImageViewerOpen(false); // Close viewer after download
+        setIsImageViewerOpen(false);
     };
 
-    // Fungsi untuk membuka Image Viewer
     const handleViewImage = (image) => {
         setImageInViewer(image);
         setIsImageViewerOpen(true);
@@ -207,7 +206,7 @@ function GeneratorPageContent() {
             />
             <MasterResetModal isOpen={isMasterResetModalOpen} onClose={() => setIsMasterResetModalOpen(false)} onConfirm={handleMasterReset} />
 
-            {isImageViewerOpen && <ImageViewer image={imageInViewer} onClose={() => setIsImageViewerOpen(false)} />} {/* Render ImageViewer */}
+            {isImageViewerOpen && <ImageViewer image={imageInViewer} onClose={() => setIsImageViewerOpen(false)} />}
 
 
             <div className="flex flex-col min-h-screen">
@@ -217,6 +216,16 @@ function GeneratorPageContent() {
                             <Wand2 className="text-yellow-500 h-8 w-8 md:h-9 md:w-9 flex-shrink-0" />
                             <span>Kenthir AI Generator</span>
                         </h1>
+                        {/* Tombol ganti tema kembali di sini */}
+                        <div className="flex items-center justify-center">
+                            <NeumorphicButton
+                                aria-label={theme === 'dark' ? "Ganti ke mode terang" : "Ganti ke mode gelap"}
+                                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                                className="!p-3"
+                            >
+                                {theme === 'dark' ? <Sun /> : <Moon />}
+                            </NeumorphicButton>
+                        </div>
                     </header>
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                         <div className="lg:col-span-4 space-y-6">
@@ -267,14 +276,12 @@ function GeneratorPageContent() {
                                 handleGenerate={handleGenerate}
                                 generationHistory={generationHistory}
                                 setGenerationHistory={setGenerationHistory}
-                                // Fungsi dan state baru untuk Image Viewer & Aksi Langsung
-                                onViewImage={handleViewImage} // <-- Teruskan fungsi ini
+                                onViewImage={handleViewImage}
                                 onUsePromptAndSeed={onUsePromptAndSeed}
                                 onCreateVariation={onCreateVariation}
                                 onDeleteImage={onDeleteImage}
                                 onDownloadImage={onDownloadImage}
                             />
-                            {/* Riwayat juga akan membuka ImageViewer */}
                             <HistoryAndFavorites
                                 generationHistory={generationHistory}
                                 setGenerationHistory={setGenerationHistory}

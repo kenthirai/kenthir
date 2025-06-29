@@ -1,0 +1,18 @@
+// app/providers.js
+"use client"; // <--- Sangat penting!
+
+import { ThemeProvider as NextThemesProvider } from "next-themes";
+import * as React from "react"; // Pastikan React diimpor
+
+export function Providers({ children }) {
+  return (
+    <NextThemesProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+    >
+      {children}
+    </NextThemesProvider>
+  );
+}

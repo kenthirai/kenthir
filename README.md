@@ -1,6 +1,6 @@
-# RuangRiung AI Image & Multimedia Generator
+# Kenthir AI Image & Multimedia Generator
 
-Selamat datang di RuangRiung AI Generator\! Aplikasi web canggih yang memungkinkan Anda mengubah imajinasi menjadi karya seni visual dan audio yang menakjubkan menggunakan kekuatan kecerdasan buatan. Dibuat dengan Next.js dan Tailwind CSS, proyek ini menawarkan antarmuka yang bersih, modern, dan kaya akan fitur.
+Selamat datang di Kenthir AI Generator\! Aplikasi web canggih yang memungkinkan Anda mengubah imajinasi menjadi karya seni visual dan audio yang menakjubkan menggunakan kekuatan kecerdasan buatan. Dibuat dengan Next.js dan Tailwind CSS, proyek ini menawarkan antarmuka yang bersih, modern, dan kaya akan fitur.
 
 ## ✨ Fitur Utama
 
@@ -41,7 +41,7 @@ Pastikan Anda memiliki [Node.js](https://nodejs.org/) (versi 18.17.0 atau lebih 
 ### 2\. Kloning Repositori
 
 ```bash
-git clone https://github.com/ruangriung/ai-image-generator.git
+git clone https://github.com/kenthirai/kenthir.git
 cd ai-image-generator
 ```
 

@@ -212,8 +212,8 @@ export const GenerationControls = ({
                     </div>
 
                     <div className="pt-2 space-y-2">
-                        <NeumorphicButton onClick={() => window.rrAssistantInstance?.toggleChat()} className="w-full text-sm">
-                            <MessageSquare size={16} /> RR Assistant
+                        <NeumorphicButton onClick={() => window.rrAssistantInstance?.toggleChat()} className="w-full text-md font-semibold">
+                            <MessageSquare size={16} /> Kenthir Chatbot
                         </NeumorphicButton>
                     </div>
 
