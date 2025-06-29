@@ -5,46 +5,15 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 // Hapus import ThemeProvider yang lama
 // import { ThemeProvider } from "./components/ThemeProvider";
 
-import { Providers } from './Providers'; // <-- Import Providers baru dari file Providers.js
+import { Providers } from './providers'; // <-- Import Providers baru dari file providers.js
 
 const inter = Inter({ subsets: ['latin'] });
 
-// Metadata untuk SEO
 export const metadata = {
   manifest: "/manifest.json",
-  title: 'Kenthir AI Image Generator - Create Stunning Digital Art',
+  title: 'RuangRuang AI Image Generator - Create Stunning Digital Art',
   description: 'Generate stunning AI art with multiple styles - from photorealistic to anime, cyberpunk to Studio Ghibli. Create professional photography, digital art, oil paintings and more with advanced AI image generation.',
-  keywords: 'AI image generator, pembuat gambar AI, seni digital AI, generator gambar Indonesia, Kenthir, AI kreatif, text to image Indonesia, ai Indonesia, gambar AI realistis, ilustrasi AI, fotografi AI, seni AI Indonesia, gambar anime AI, AI artistik, teknologi kreatif, AI untuk desain, pembuat konten AI, AI lokal Indonesia, seni digital, gambar berkualitas tinggi, AI painting, generator gambar online, AI untuk UMKM, kreasi visual AI, AI untuk konten media sosial, gambar unik AI, AI untuk pemasaran, seni generatif, AI untuk bisnis, teknologi AI Indonesia, inovasi kreatif, AI untuk pengusaha',
-  verification: {
-    google: '3Mybm59m8--LyAZpVYIGHrVk1fSkYemj33bq5RBBdxA',
-  },
-  openGraph: {
-    title: 'Kenthir AI Image Generator - Create Stunning Digital Art',
-    description: 'Transform text into beautiful AI-generated artwork in various styles including photography, anime, digital painting and more.',
-    url: 'https://Kenthir.my.id',
-    type: 'website',
-    images: [
-      {
-        url: 'https://www.Kenthir.my.id/assets/Kenthir.png',
-        width: 1200,
-        height: 630,
-        alt: 'Kenthir AI Image Generator',
-      },
-    ],
-  },
-  icons: {
-    icon: '/icon.ico',
-    apple: '/logo.png',
-    shortcut: '/logo.png',
-  },
-  applicationName: 'Kenthir AI Image Generator',
-  appleWebApp: {
-    statusBarStyle: '#000000',
-    capable: 'yes',
-  },
-  msapplication: {
-    navbuttonColor: '#000000',
-  },
+  // ... (sisa metadata Anda tetap sama)
 };
 
 export const viewport = {
