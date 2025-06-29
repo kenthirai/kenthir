@@ -158,7 +158,7 @@ function GeneratorPageContent() {
     
     const handleGenerateModalPassword = () => {
         const randomChars = Array(5).fill(0).map(() => Math.floor(Math.random() * 10)).join('');
-        const newPassword = `ruangriung-${randomChars}`;
+        const newPassword = `Kenthir-${randomChars}`;
         setGeneratedTurboPassword(newPassword);
         setTurboPasswordInput('');
     };
@@ -212,7 +212,7 @@ function GeneratorPageContent() {
             ctx.filter = 'none';
             const finalizeDownload = () => {
                 const link = document.createElement('a');
-                link.download = `ruangriung-ai-${Date.now()}.png`;
+                link.download = `Kenthir-ai-${Date.now()}.png`;
                 link.href = canvas.toDataURL('image/png');
                 link.click();
                 showToast('Gambar diunduh...', 'success');
@@ -284,7 +284,7 @@ function GeneratorPageContent() {
                     <header className="flex flex-col gap-4 items-center text-center mb-8">
                         <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold flex items-center justify-center gap-2 md:gap-3">
                             <Wand2 className="text-yellow-500 h-8 w-8 md:h-9 md:w-9 flex-shrink-0" />
-                            <span>RuangRiung AI Generator</span>
+                            <span>Kenthir AI Generator</span>
                         </h1>
                         <div className="flex items-center gap-2 sm:gap-4 flex-wrap justify-center">
                             <NeumorphicButton 
@@ -597,7 +597,7 @@ function GeneratorPageContent() {
                 </div>
 
                 <footer className="text-center p-4 mt-8 border-t border-gray-500/20 text-sm opacity-70">
-                    <p>&copy; {new Date().getFullYear()} RuangRiung AI Generator - Developed with ❤️ by{' '}
+                    <p>&copy; {new Date().getFullYear()} Kenthir AI Generator - Developed with ❤️ by{' '}
                       <a
                         href="https://ariftirtana.com"
                         target="_blank"
