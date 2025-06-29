@@ -525,30 +525,23 @@ function GeneratorPageContent() {
                                     </div>
                                 )}
 
-                                {!loading && activeTab === 'image' && generatedImages.length === 0 && <p className="text-gray-500">Hasil gambar akan muncul di sini.</p>}
                                 {!loading && activeTab === 'image' && generatedImages.length > 0 && 
-                                    <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                        {generatedImages.map((img, i) => (
-                                            <div key={i} className="rounded-xl p-2 space-y-2 group relative" style={{boxShadow: 'var(--shadow-outset)'}}>
-                                                <img src={img.url} className="w-full h-auto rounded-lg"/>
-                                                <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg">
-                                                    <button onClick={() => handleOpenEditor(img)} className="text-white font-bold py-2 px-4 rounded-lg bg-white/20 backdrop-blur-sm">Lihat & Edit</button>
-                                                </div>
-                                                <p className="text-xs text-center opacity-60">Seed: {img.seed}</p>
-                                            </div>
-                                        ))}
-                                    </div>
-                                }
-                                {!loading && activeTab === 'video' && !generatedVideoPrompt && <p className="text-gray-500">Gunakan asisten di sebelah kiri untuk membuat prompt video profesional.</p>}
-                                {!loading && activeTab === 'audio' && !generatedAudio && <p className="text-gray-500">Hasil audio akan muncul di sini.</p>}
-                                {!loading && activeTab === 'audio' && generatedAudio && 
-                                    <div className="w-full p-4 flex items-center gap-4">
-                                        <audio controls src={generatedAudio} className="w-full"></audio>
-                                        <a href={generatedAudio} download="generated_audio.mp3">
-                                            <NeumorphicButton className="!p-3"><ImageDown size={20}/></NeumorphicButton>
-                                        </a>
-                                    </div>
-                                }
+    <div className={`w-full p-4 ${generatedImages.length === 1 ? 'flex justify-center items-center' : 'grid grid-cols-1 sm:grid-cols-2 gap-6'}`}>
+        {generatedImages.map((img, i) => (
+            <div 
+              key={i} 
+              className={`rounded-xl p-2 space-y-2 group relative ${generatedImages.length === 1 ? 'w-full max-w-xl' : ''}`} 
+              style={{boxShadow: 'var(--shadow-outset)'}}
+            >
+                <img src={img.url} alt={img.prompt} className="w-full h-auto rounded-lg"/>
+                <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg">
+                    <button onClick={() => handleOpenEditor(img)} className="text-white font-bold py-2 px-4 rounded-lg bg-white/20 backdrop-blur-sm">Lihat & Edit</button>
+                </div>
+                <p className="text-xs text-center opacity-60">Seed: {img.seed}</p>
+            </div>
+        ))}
+    </div>
+}
                             </div>
                             <div className="p-6 rounded-2xl h-fit neumorphic-card">
                                 <div className="flex justify-between items-center mb-4">
