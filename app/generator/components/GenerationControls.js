@@ -6,11 +6,12 @@ import {
     ImageDown, Trash2, History, ChevronsRight, Settings,
     ChevronDown, ChevronUp, Sparkles, Image as ImageIcon, Video, AudioLines,
     SlidersHorizontal, Camera, CloudSun, KeyRound, Check,
-    MessageSquare, Download, Dices, Copy, Eye, EyeOff
+    MessageSquare, Download, Dices, Copy, Eye, EyeOff, Maximize2
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { Spinner, NeumorphicButton, CollapsibleSection } from '../../sharedComponents';
 import { artStyles } from '../../artStyles';
+import ModalExpandTextarea from './ModalExpandTextarea';
 
 export const GenerationControls = ({
     prompt, setPrompt, model, setModel, quality, setQuality, sizePreset, setSizePreset,
@@ -26,6 +27,10 @@ export const GenerationControls = ({
 }) => {
     const { theme, setTheme } = useTheme();
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    const [expandImagePrompt, setExpandImagePrompt] = useState(false);
+    const [expandVideoPrompt, setExpandVideoPrompt] = useState(false);
+    const [expandAudioPrompt, setExpandAudioPrompt] = useState(false);
+    const [expandCreatorDetails, setExpandCreatorDetails] = useState(false);
 
     const videoParamOptions = {
         visualStyle: ["Cinematic", "Anime", "Photorealistic", "Watercolor", "Pixel Art", "Cyberpunk", "Retro", "Futuristic"],
@@ -85,8 +90,17 @@ export const GenerationControls = ({
                     <label htmlFor="prompt-textarea" className="font-semibold block text-xl">Prompt Gambar</label>
                     <div className="relative">
                         <textarea id="prompt-textarea" value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="Ketik ide gambarmu di sini..." className="w-full p-3 rounded-lg neumorphic-input h-28 resize-none pr-10"/>
-                        <button aria-label="Hapus prompt" onClick={() => setPrompt('')} className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"><X size={18}/></button>
+                        <button aria-label="Hapus prompt" onClick={() => setPrompt('')} className="absolute top-2 right-10 text-gray-400 hover:text-gray-600"><X size={18}/></button>
+                        <button aria-label="Perbesar textarea" onClick={() => setExpandImagePrompt(true)} className="absolute bottom-2 right-2 text-gray-400 hover:text-gray-600 bg-white/80 dark:bg-gray-800/80 rounded-full p-1 shadow" style={{zIndex:2}}><Maximize2 size={18}/></button>
                     </div>
+                    <ModalExpandTextarea
+                        isOpen={expandImagePrompt}
+                        onClose={() => setExpandImagePrompt(false)}
+                        value={prompt}
+                        onChange={e => setPrompt(e.target.value)}
+                        label="Prompt Gambar"
+                        placeholder="Ketik ide gambarmu di sini..."
+                    />
 
                     <CollapsibleSection title="Butuh Inspirasi?" icon={<Wand2 size={16}/>}>
                         <div className="space-y-2">
@@ -181,9 +195,18 @@ export const GenerationControls = ({
                                 <label className="text-xs font-semibold block mb-1 items-center text-red-500 dark:text-red-400">Subjek (Wajib)<Star className="w-3 h-3 ml-1" fill="currentColor"/></label>
                                 <input name="subject" value={promptCreator.subject} onChange={(e) => setPromptCreator(p => ({ ...p, [e.target.name]: e.target.value }))} placeholder="cth: seekor kucing astronot" className="w-full p-2 rounded-lg neumorphic-input text-sm" />
                             </div>
-                            <div>
+                            <div className="relative">
                                 <label className="text-xs font-semibold block mb-1">Detail Tambahan</label>
-                                <textarea name="details" value={promptCreator.details} onChange={(e) => setPromptCreator(p => ({ ...p, [e.target.name]: e.target.value }))} placeholder="cth: hyperrealistic, 4k" className="w-full p-2 rounded-lg neumorphic-input text-sm h-20 resize-none" />
+                                <textarea name="details" value={promptCreator.details} onChange={(e) => setPromptCreator(p => ({ ...p, [e.target.name]: e.target.value }))} placeholder="cth: hyperrealistic, 4k" className="w-full p-2 rounded-lg neumorphic-input text-sm h-20 resize-none pr-10" />
+                                <button aria-label="Perbesar textarea" onClick={() => setExpandCreatorDetails(true)} className="absolute bottom-2 right-2 text-gray-400 hover:text-gray-600 bg-white/80 dark:bg-gray-800/80 rounded-full p-1 shadow" style={{zIndex:2}}><Maximize2 size={18}/></button>
+                                <ModalExpandTextarea
+                                    isOpen={expandCreatorDetails}
+                                    onClose={() => setExpandCreatorDetails(false)}
+                                    value={promptCreator.details}
+                                    onChange={e => setPromptCreator(p => ({ ...p, details: e.target.value }))}
+                                    label="Detail Tambahan"
+                                    placeholder="cth: hyperrealistic, 4k"
+                                />
                             </div>
                             <NeumorphicButton onClick={() => handleBuildImagePrompt(promptCreator)} loading={isBuildingPrompt} loadingText="Membangun..." className="w-full text-sm !p-2">Kembangkan dengan AI</NeumorphicButton>
 
@@ -224,9 +247,18 @@ export const GenerationControls = ({
             {activeTab === 'video' && (
                 <div className="space-y-4">
                     <label className="font-semibold block text-xl">Asisten Prompt Video</label>
-                    <div>
+                    <div className="relative">
                         <label className="text-sm font-semibold">Konsep Utama Video</label>
-                        <textarea name="concept" value={videoParams.concept} onChange={handleVideoParamsChange} placeholder="Cth: Detektif cyberpunk di gang neon..." className="w-full p-3 mt-1 rounded-lg neumorphic-input h-28 resize-none"/>
+                        <textarea name="concept" value={videoParams.concept} onChange={handleVideoParamsChange} placeholder="Cth: Detektif cyberpunk di gang neon..." className="w-full p-3 mt-1 rounded-lg neumorphic-input h-28 resize-none pr-10"/>
+                        <button aria-label="Perbesar textarea" onClick={() => setExpandVideoPrompt(true)} className="absolute bottom-2 right-2 text-gray-400 hover:text-gray-600 bg-white/80 dark:bg-gray-800/80 rounded-full p-1 shadow" style={{zIndex:2}}><Maximize2 size={18}/></button>
+                        <ModalExpandTextarea
+                            isOpen={expandVideoPrompt}
+                            onClose={() => setExpandVideoPrompt(false)}
+                            value={videoParams.concept}
+                            onChange={e => handleVideoParamsChange({ target: { name: 'concept', value: e.target.value } })}
+                            label="Konsep Utama Video"
+                            placeholder="Cth: Detektif cyberpunk di gang neon..."
+                        />
                     </div>
                     <CollapsibleSection title="Basic Settings" icon={<SlidersHorizontal size={18}/>}>
                         <div className="grid grid-cols-2 gap-4">
@@ -263,7 +295,16 @@ export const GenerationControls = ({
                     <label className="font-semibold block text-xl">Teks untuk Audio</label>
                     <div className="relative">
                         <textarea value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="Ketik kalimat untuk diubah jadi suara..." className="w-full p-3 rounded-lg neumorphic-input h-28 resize-none pr-10"/>
-                        <button onClick={() => setPrompt('')} className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"><X size={18}/></button>
+                        <button onClick={() => setPrompt('')} className="absolute top-2 right-10 text-gray-400 hover:text-gray-600"><X size={18}/></button>
+                        <button aria-label="Perbesar textarea" onClick={() => setExpandAudioPrompt(true)} className="absolute bottom-2 right-2 text-gray-400 hover:text-gray-600 bg-white/80 dark:bg-gray-800/80 rounded-full p-1 shadow" style={{zIndex:2}}><Maximize2 size={18}/></button>
+                        <ModalExpandTextarea
+                            isOpen={expandAudioPrompt}
+                            onClose={() => setExpandAudioPrompt(false)}
+                            value={prompt}
+                            onChange={e => setPrompt(e.target.value)}
+                            label="Teks untuk Audio"
+                            placeholder="Ketik kalimat untuk diubah jadi suara..."
+                        />
                     </div>
                     <div>
                         <label className="font-semibold block mb-2">Pilih Suara</label>

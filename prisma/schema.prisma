@@ -71,12 +71,12 @@ model VerificationToken {
 // Model BARU untuk Koin
 model CoinBalance {
   id           String    @id @default(cuid())
-  userId       String    @unique // Koin terhubung ke satu user
+  userId       String?   @unique // Boleh null untuk guest
   balance      Int       @default(0)
-  lastReset    DateTime? // Kapan koin terakhir direset (untuk tamu)
-  isGuest      Boolean   @default(false) // Menandakan apakah ini koin tamu
+  lastReset    DateTime?
+  isGuest      Boolean   @default(false)
 
-  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("coin_balances") // Opsional: nama tabel di database
 }

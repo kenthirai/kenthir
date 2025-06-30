@@ -56,18 +56,32 @@ export async function GET(request) {
       }
     } else {
       // Jika belum ada entri koin untuk pengguna ini, buat yang baru
-      coinBalance = await prisma.coinBalance.create({
-        data: {
-          userId: userId,
-          balance: isGuest ? GUEST_INITIAL_COINS : LOGGED_IN_INITIAL_COINS,
-          lastReset: now,
-          isGuest: isGuest,
-        },
-      });
+      if (isGuest) {
+        coinBalance = await prisma.coinBalance.create({
+          data: {
+            balance: GUEST_INITIAL_COINS,
+            lastReset: now,
+            isGuest: true,
+          },
+        });
+      } else {
+        coinBalance = await prisma.coinBalance.create({
+          data: {
+            userId: userId,
+            balance: LOGGED_IN_INITIAL_COINS,
+            lastReset: now,
+            isGuest: false,
+          },
+        });
+      }
     }
 
-    // Kembalikan saldo koin sebagai respons JSON
-    return NextResponse.json({ balance: coinBalance.balance });
+    // Kembalikan saldo koin dan waktu reset sebagai respons JSON
+    let balanceToReturn = coinBalance.balance;
+    if (isGuest && balanceToReturn < GUEST_INITIAL_COINS) {
+      balanceToReturn = GUEST_INITIAL_COINS;
+    }
+    return NextResponse.json({ balance: balanceToReturn, lastReset: coinBalance.lastReset });
 
   } catch (error) {
     console.error("Error fetching or resetting coin balance:", error);
@@ -77,44 +91,60 @@ export async function GET(request) {
 
 // Handler untuk permintaan POST (mengurangi saldo koin)
 export async function POST(request) {
-  const session = await getServerSession(); // Dapatkan sesi pengguna
-  const { amount = 1 } = await request.json(); // Ambil jumlah koin yang akan dikurangi (default 1)
+  const session = await getServerSession();
+  const { amount = 1 } = await request.json();
 
   let userId;
+  let isGuest = false;
   if (!session || !session.user || !session.user.id) {
-    // Logika ID tamu yang sama seperti di GET
-    userId = "guest_" + (request.headers.get('x-forwarded-for') || request.ip);
-    if (userId === "guest_null" || userId === "guest_undefined" || userId === "guest_::1") {
-      userId = "guest_" + Date.now();
-    }
+    userId = null;
+    isGuest = true;
   } else {
     userId = session.user.id;
   }
 
   try {
     // Cari saldo koin pengguna
-    const coinBalance = await prisma.coinBalance.findUnique({
-      where: { userId: userId },
-    });
-
-    // Periksa apakah koin cukup
-    if (!coinBalance || coinBalance.balance < amount) {
-      return NextResponse.json({ error: "Koin tidak cukup!" }, { status: 400 });
+    let coinBalance;
+    if (isGuest) {
+      coinBalance = await prisma.coinBalance.findFirst({
+        where: { isGuest: true },
+        orderBy: { lastReset: 'desc' },
+      });
+    } else {
+      coinBalance = await prisma.coinBalance.findUnique({
+        where: { userId: userId },
+      });
     }
 
-    // Kurangi saldo koin di database
+    if (!coinBalance) {
+      return NextResponse.json({ error: "User/tamu belum punya saldo koin!" }, { status: 400 });
+    }
+
+    // Jika amount negatif (refund), tambahkan koin
+    if (amount < 0) {
+      const updatedBalance = await prisma.coinBalance.update({
+        where: { id: coinBalance.id },
+        data: {
+          balance: coinBalance.balance - amount, // -(-1) = +1
+        },
+      });
+      return NextResponse.json({ balance: updatedBalance.balance });
+    }
+
+    // Jika amount positif, kurangi koin seperti biasa
+    if (coinBalance.balance < amount) {
+      return NextResponse.json({ error: "Koin tidak cukup!" }, { status: 400 });
+    }
     const updatedBalance = await prisma.coinBalance.update({
-      where: { userId: userId },
+      where: { id: coinBalance.id },
       data: {
         balance: coinBalance.balance - amount,
       },
     });
-
-    // Kembalikan saldo koin yang baru
     return NextResponse.json({ balance: updatedBalance.balance });
-
   } catch (error) {
-    console.error("Error deducting coins:", error);
-    return NextResponse.json({ error: "Gagal mengurangi koin" }, { status: 500 });
+    console.error("Error deducting/refunding coins:", error);
+    return NextResponse.json({ error: "Gagal mengubah koin" }, { status: 500 });
   }
 }

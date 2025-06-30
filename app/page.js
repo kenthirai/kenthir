@@ -3,35 +3,30 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Wand2, Settings, BrainCircuit, Sparkles } from 'lucide-react';
-import { NeumorphicButton, Spinner } from './sharedComponents'; // Pastikan Spinner diimpor
+import { NeumorphicButton, Spinner } from './sharedComponents';
 import ChatbotAssistant from './ChatbotAssistant.js';
 
 export default function LandingPage() {
     const [prompt, setPrompt] = useState('');
-    const [isGeneratingLoadingPage, setIsGeneratingLoadingPage] = useState(false); // State baru untuk loading di halaman ini
-    const [loadingProgress, setLoadingProgress] = useState(0); // State baru untuk persentase loading
+    const [isGeneratingLoadingPage, setIsGeneratingLoadingPage] = useState(false);
+    const [loadingProgress, setLoadingProgress] = useState(0);
     const router = useRouter();
 
     const handleGenerateRedirect = () => {
-        console.log("Tombol Generate diklik! Mencoba mengarahkan dengan prompt:", prompt);
-
-        setIsGeneratingLoadingPage(true); // Mulai loading
-        setLoadingProgress(0); // Reset progress
-
+        setIsGeneratingLoadingPage(true);
+        setLoadingProgress(0);
         let progress = 0;
         const interval = setInterval(() => {
-            progress += 5; // Tambah progres
+            progress += 5;
             if (progress <= 100) {
                 setLoadingProgress(progress);
             }
-
-            // Arahkan setelah mencapai 90% atau lebih, untuk memastikan progres terlihat
             if (progress >= 100) {
-                clearInterval(interval); // Hentikan interval
+                clearInterval(interval);
                 const params = new URLSearchParams({ prompt });
                 router.push(`/generator?${params.toString()}`);
             }
-        }, 150); // Setiap 150ms
+        }, 150);
     };
 
     const onFormSubmit = (e) => {
@@ -78,22 +73,20 @@ export default function LandingPage() {
                             onChange={(e) => setPrompt(e.target.value)}
                             placeholder="Contoh: Kucing astronot di planet Mars..."
                             className="w-full p-4 text-lg rounded-xl neumorphic-input flex-grow"
-                            disabled={isGeneratingLoadingPage} // Nonaktifkan input saat loading
+                            disabled={isGeneratingLoadingPage}
                         />
                         <NeumorphicButton
                             type="button"
                             onClick={handleGenerateRedirect}
                             className="!p-4 !font-bold !text-lg flex items-center justify-center"
-                            loading={isGeneratingLoadingPage} // Mengaktifkan tampilan loading
-                            loadingText="Generate" // Hanya teks "Generate" atau "Memuat..." tanpa persentase
-                            disabled={isGeneratingLoadingPage} // Nonaktifkan tombol saat loading
+                            loading={isGeneratingLoadingPage}
+                            loadingText="Generate"
+                            disabled={isGeneratingLoadingPage}
                         >
-                            {/* Jika loading, Spinner akan otomatis muncul dari NeumorphicButton */}
                             <Sparkles size={24} />
                             <span className="ml-2">Generate</span>
                         </NeumorphicButton>
                     </form>
-                    {/* Spinner loading dengan persentase di bawah form */}
                     {isGeneratingLoadingPage && (
                         <div className="mt-6 flex items-center justify-center gap-3 text-lg font-semibold animate-fade-in-up">
                             <Spinner />
@@ -134,7 +127,7 @@ export default function LandingPage() {
                     <NeumorphicButton
                         onClick={() => router.push('/generator')}
                         className="!p-5 !font-bold !text-xl !px-10 flex items-center justify-center"
-                        disabled={isGeneratingLoadingPage} // Nonaktifkan tombol saat loading
+                        disabled={isGeneratingLoadingPage}
                     >
                         Buka Generator Sekarang
                     </NeumorphicButton>
